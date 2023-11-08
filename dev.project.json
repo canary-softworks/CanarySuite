@@ -1,0 +1,22 @@
+{
+  "emitLegacyScripts": false,
+  "name": "canarysuite-dev",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "Libraries": {
+        "$path": "libs"
+      },
+      "Tests": {
+        "$path": "tests/client"
+      }
+    },
+    
+    "ServerStorage": {
+      "Tests": {
+        "$path": "tests/server"
+      }
+    }
+  }
+}
