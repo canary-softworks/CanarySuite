@@ -4,6 +4,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Canary Suite",
   description: "A public library of smaller utility packages used externally and internally by Canary",
+  base: '/canarysuite/',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
