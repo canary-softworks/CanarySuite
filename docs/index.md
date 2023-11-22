@@ -3,23 +3,11 @@
 layout: home
 
 hero:
-  name: "Canary Suite"
-  text: "A public library of packages"
-  tagline: My great project tagline
+  text: "Canary Suite"
+  tagline: A public library of packages
   actions:
     - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
-    - theme: alt
-      text: API Examples
-      link: /api-examples
-
-features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+      text: API Reference
+      link: /api/benchmark
 ---
 
