@@ -77,7 +77,7 @@ The function to run for each `timesToRun` index, has a `timesRan` argument which
 
 **Returns**
 
-* **[BenchmarkData](/api/libraries/benchmark#benchmarkdata)**
+* **[BenchmarkData](#benchmarkdata)**
 
 ---
 

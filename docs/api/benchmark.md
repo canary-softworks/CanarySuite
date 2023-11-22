@@ -6,7 +6,7 @@ Allows you to create benchmark objects to measure function times.
 
 ### BenchmarkData <Badge type="tip" text="public" />
 
-The data that is returned after a [BenchmarkObject:SetFunction](/api/libraries/benchmarkobject#setfunction) call is finished.
+The data that is returned after a [BenchmarkObject:SetFunction](/api/benchmarkobject#setfunction) call is finished.
 
 ## Functions
 
@@ -16,4 +16,4 @@ Creates a new Benchmark object to be used.
 
 **Returns**
 
-* **[BenchmarkObject](/api/libraries/benchmarkobject)**
+* **[BenchmarkObject](/api/benchmarkobject)**
