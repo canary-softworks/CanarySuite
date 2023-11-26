@@ -45,8 +45,8 @@ function BenchmarkObject:Start()
 end
 
 function BenchmarkObject:Stop(): number
-	self.IsCompleted = true
 	self.EndTime = os.clock()
+	self.IsCompleted = true
 
 	local StoppedTime = self.EndTime - self.StartTime
 
