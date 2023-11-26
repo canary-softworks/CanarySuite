@@ -1,6 +1,6 @@
 {
-	"name": "Snacky",
+	"name": "snacky",
 	"tree": {
-		"$path": "Snacky.luau"
+		"$path": "snacky.luau"
 	}
 }

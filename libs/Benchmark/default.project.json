@@ -1,6 +1,6 @@
 {
-	"name": "Benchmark",
+	"name": "benchmark",
 	"tree": {
-		"$path": "Benchmark.luau"
+		"$path": "benchmark.luau"
 	}
 }

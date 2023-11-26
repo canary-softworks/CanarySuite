@@ -1,6 +1,6 @@
 {
-	"name": "MDify",
+	"name": "mdify",
 	"tree": {
-		"$path": "init.luau"
+		"$path": "mdify.luau"
 	}
 }

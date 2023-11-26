@@ -11,20 +11,7 @@ type BenchmarkData = {Total: number, Longest: number, Shortest: number, Average:
 -- // Variables
 
 local BenchmarkObject = { }
-local ToString = {
-	__tostring = function(table)
-		local ConvertedString = ""
-
-		for dataType, metric in table do
-			ConvertedString = `{ConvertedString}\n\t{dataType}: {metric * 1000}ms`
-		end
-
-		return ConvertedString
-	end
-}
-
 local Signal = require(script.Parent.Signal)
-local Statistics = require(script.Parent.Statistics)
 
 -- // Functions
 
@@ -44,29 +31,13 @@ function BenchmarkObject:SetFunction(timesToRun: number, func: (timesRan: number
 		error("Field 'timesToRun' must be greater than 0.", 0)
 	end
 
-	local CollectedBenchmarkData = { }
 	self.StartTime = os.clock()
 
 	for index = 1, timesToRun do
 		func(index)
-		table.insert(CollectedBenchmarkData, os.clock() - self.StartTime)
 	end
 
-	if timesToRun >= 8000 then
-		return setmetatable({
-			Total = self:Stop(),
-			Average = Statistics.GetMean(CollectedBenchmarkData),
-			Shortest = 0,
-			Longest = 0,
-		}, ToString)
-	end
-
-	return setmetatable({
-		Total = self:Stop(),
-		Average = Statistics.GetMean(CollectedBenchmarkData),
-		Shortest = math.min(table.unpack(CollectedBenchmarkData)),
-		Longest = math.max(table.unpack(CollectedBenchmarkData)),
-	}, ToString)
+	return self:Stop()
 end
 
 function BenchmarkObject:Start()
