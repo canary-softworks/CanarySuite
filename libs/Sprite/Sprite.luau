@@ -1,85 +1,157 @@
 --!strict
 
--- // Package
-
-local Sprite = { }
-
 -- // Variables
+local Sprite = {}
 
-local RobloxMaxImageSize = 1024
+local MAX_IMAGE_SIZE = 1024 -- pixels
+
+-- // Configuration
+Sprite.__index = Sprite
+
+-- // Types
+type self = {
+	_object: ImageLabel,
+	_width: number,
+	_height: number,
+	_columns: number,
+	_rows: number,
+	_frameAmount: number,
+	_fps: number,
+	_states: {
+		Playing: boolean,
+		Cleaned: boolean,
+	},
+	_index: number,
+	_timeInterval: number,
+	_offsets: {},
+}
+
+export type SpriteInfo = {
+	ImageObject: ImageLabel,
+	Width: number?,
+	Height: number?,
+	Rows: number,
+	Columns: number,
+	NumberOfFrames: number?,
+	ImageId: string?,
+	FPS: number?,
+}
+export type Sprite = typeof(setmetatable({} :: self, Sprite))
 
 -- // Functions
-
-function Sprite.Animate(image: ImageLabel, imageSize: Vector2, frames: Vector2, fps: number?, imageId: string?)
-	fps = fps or 30
-	imageId = imageId or image.Image
-
-    image:SetAttribute("IsAnimationActive", true)
-
-    if imageId then
-        image.Image = imageId
-    end
-	
+function _Init(self: Sprite)
 	local RealWidth, RealHeight
-    local ImageWidth, ImageHeight = imageSize.X, imageSize.Y
+	local CurrentRow, CurrentColumn = 0, 0
 
-	if math.max(ImageWidth, ImageHeight) > RobloxMaxImageSize then -- Compensate roblox size
-		local Longest = ImageWidth > ImageHeight and "Width" or "Height"
+	if math.max(self._width, self._height) > MAX_IMAGE_SIZE then -- Compensate roblox size
+		local Longest = self._width > self._height and "Width" or "Height"
 
 		if Longest == "Width" then
-			RealWidth = RobloxMaxImageSize
-			RealHeight = (RealWidth / ImageWidth) * ImageHeight
+			RealWidth = MAX_IMAGE_SIZE
+			RealHeight = (RealWidth / self._width) * self._height
 		elseif Longest == "Height" then
-			RealHeight = RobloxMaxImageSize
-			RealWidth = (RealHeight / ImageHeight) * ImageWidth
+			RealHeight = MAX_IMAGE_SIZE
+			RealWidth = (RealHeight / self._height) * self._height
 		end
 	else
-		RealWidth, RealHeight = ImageWidth, ImageHeight
+		RealWidth, RealHeight = self._width, self._height
 	end
-	
-	local SingleFrameSize = Vector2.new(RealWidth/frames.Y, RealWidth/frames.X)
-    local TotalFrames = frames.X * frames.Y
 
-	image.ImageRectSize = SingleFrameSize
-	
-	local CurrentRow, CurrentColumn = 0, 0
-	local Offsets = { }
-	
-	for _ = 1, TotalFrames do
-		local CurrentXPosition = CurrentColumn * SingleFrameSize.X
-		local CurrentYPosition = CurrentRow * SingleFrameSize.Y
-		
-		table.insert(Offsets, Vector2.new(CurrentXPosition, CurrentYPosition))
-		
+	local FrameSize = Vector2.new((RealWidth / self._columns), (RealHeight / self._rows))
+	self._object.ImageRectSize = FrameSize
+
+	for _ = 1, self._frameAmount do
+		local CurrentX = CurrentColumn * FrameSize.X
+		local CurrentY = CurrentRow * FrameSize.Y
+
+		table.insert(self._offsets, Vector2.new(CurrentX, CurrentY))
+
 		CurrentColumn += 1
-		
-		if CurrentColumn >= frames.Y then
+
+		if CurrentColumn >= self._columns then
 			CurrentColumn = 0
 			CurrentRow += 1
 		end
 	end
-	
-	local SpritePlayTime = fps and 1/fps or 0.1
-	local CurrentIndex = 0
-	
-	while image:IsDescendantOf(game) and image:GetAttribute("IsAnimationActive") do
-        task.wait(SpritePlayTime)
+end
 
-		CurrentIndex += 1
-		image.ImageRectOffset = Offsets[CurrentIndex]
-		
-		if CurrentIndex >= TotalFrames then
-			CurrentIndex = 0
+function Sprite.new(SpriteInfo: SpriteInfo): Sprite
+	if SpriteInfo.ImageId ~= nil then
+		SpriteInfo.ImageObject.Image = SpriteInfo.ImageId
+	end
+
+	-- Sprite should not play an ImageLabel with empty 'Image' property
+	local self = setmetatable({} :: self, Sprite)
+
+	self._object = SpriteInfo.ImageObject
+	self._width = SpriteInfo.Width or 1024
+	self._height = SpriteInfo.Height or 1024
+	self._columns = SpriteInfo.Columns
+	self._rows = SpriteInfo.Rows
+	self._frameAmount = SpriteInfo.NumberOfFrames or (self._columns * self._rows)
+	self._fps = SpriteInfo.FPS or 60
+	self._states = {
+		Playing = false,
+		Cleaned = false,
+	}
+	self._index = 0
+	self._timeInterval = self._fps and (1 / self._fps) or 0.1
+	self._offsets = {}
+
+	_Init(self)
+
+	return self
+end
+
+function Sprite.Play(self: Sprite, play: boolean)
+	if play == true then
+		if self._states.Playing == true then
+			warn("Failed to apply (true) to Sprite. Error: Sprite is already playing.")
+			return
 		end
+
+		self._states.Playing = true
+
+		task.spawn(function()
+			while self._states.Playing == true do
+				if self._states.Cleaned == true then
+					break
+				end
+				if not self._object:IsDescendantOf(game) then
+					break
+				end
+
+				self._index += 1
+				self._object.ImageRectOffset = self._offsets[self._index]
+
+				if self._index >= self._frameAmount then
+					self._index = 0
+				end
+
+				task.wait(self._timeInterval)
+			end
+		end)
+	else
+		if self._states.Playing == false then
+			warn("Failed to apply (false) to Sprite. Error: Sprite is already paused.")
+			return
+		end
+
+		self._states.Playing = false
 	end
 end
 
-function Sprite.StopAnimation(image: ImageLabel)
-    if image:GetAttribute("IsAnimationActive") then
-        image:SetAttribute("IsAnimationActive", false)
-    end
+function Sprite.Clean(self: Sprite)
+	if self._states.Cleaned == true then
+		return
+	end
+
+	self._states.Playing = false
+	task.wait() -- Wait for changes to occur on the next frame
+	self._states.Cleaned = true
+	table.clear(self)
+	setmetatable(self, nil)
 end
 
--- // Actions
-
+-- // Returning
 return Sprite
